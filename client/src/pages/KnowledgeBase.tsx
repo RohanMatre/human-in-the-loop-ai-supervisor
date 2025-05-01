@@ -1,50 +1,28 @@
 import { useState, useEffect } from 'react';
-
-interface KnowledgeEntry {
-  id: string;
-  query: string;
-  answer: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { knowledgeApi } from '@services/api';
+import { KnowledgeEntry } from '../../../shared/types';
 
 const KnowledgeBase = () => {
   const [entries, setEntries] = useState<KnowledgeEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate loading knowledge base entries from the server
-    const timer = setTimeout(() => {
-      const mockEntries: KnowledgeEntry[] = [
-        {
-          id: '1',
-          query: 'How do I reset my password?',
-          answer: 'You can reset your password by clicking on the "Forgot Password" link on the login page.',
-          createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          updatedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: '2',
-          query: 'What payment methods do you accept?',
-          answer: 'We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and bank transfers.',
-          createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-          updatedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: '3',
-          query: 'How do I track my order?',
-          answer: 'You can track your order by going to your account page and clicking on the "Orders" tab. Then select the order you want to track and click on "Track Order".',
-          createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-          updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
-        }
-      ];
-      
-      setEntries(mockEntries);
-      setIsLoading(false);
-    }, 1000);
+    const fetchKnowledgeBase = async () => {
+      try {
+        setIsLoading(true);
+        const data = await knowledgeApi.getAllEntries();
+        setEntries(data);
+      } catch (err) {
+        console.error('Error fetching knowledge base:', err);
+        setError('Failed to load knowledge base. Please try again later.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    fetchKnowledgeBase();
   }, []);
 
   const filteredEntries = searchTerm
@@ -59,6 +37,20 @@ const KnowledgeBase = () => {
       <div className="text-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
         <p className="mt-3 text-gray-500">Loading knowledge base...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Try Again
+        </button>
       </div>
     );
   }
@@ -110,6 +102,17 @@ const KnowledgeBase = () => {
                       <span>Added: {new Date(entry.createdAt).toLocaleDateString()}</span>
                       <span className="mx-2">•</span>
                       <span>Last updated: {new Date(entry.updatedAt).toLocaleDateString()}</span>
+                      {entry.sourceRequestId && (
+                        <>
+                          <span className="mx-2">•</span>
+                          <a 
+                            href={`/requests/${entry.sourceRequestId}`}
+                            className="text-blue-400 hover:text-blue-600"
+                          >
+                            Source Request
+                          </a>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
