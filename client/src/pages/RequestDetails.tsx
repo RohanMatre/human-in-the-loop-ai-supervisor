@@ -1,22 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-
-interface HelpRequest {
-  id: string;
-  query: string;
-  customerInfo: {
-    id: string;
-    name: string;
-  };
-  status: 'pending' | 'resolved';
-  timestamp: string;
-  response?: string;
-  conversation?: {
-    role: 'system' | 'user' | 'assistant';
-    content: string;
-    timestamp: string;
-  }[];
-}
+import { requestsApi } from '@services/api';
+import { HelpRequest } from '../../../shared/types';
 
 const RequestDetails = () => {
   const { requestId } = useParams<{ requestId: string }>();
@@ -24,90 +9,46 @@ const RequestDetails = () => {
   const [request, setRequest] = useState<HelpRequest | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [response, setResponse] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate loading the request from the server
-    const timer = setTimeout(() => {
-      // This would be an API call in a real application
-      const mockRequest: HelpRequest = {
-        id: requestId || '0',
-        query: requestId === '1' 
-          ? 'How do I reset my password?' 
-          : 'When will my order arrive?',
-        customerInfo: {
-          id: requestId === '1' ? '1001' : '1042',
-          name: requestId === '1' ? 'John Doe' : 'Jane Smith'
-        },
-        status: requestId === '1' ? 'resolved' : 'pending',
-        timestamp: new Date(
-          requestId === '1' 
-            ? Date.now() - 3 * 60 * 60 * 1000 
-            : Date.now() - 15 * 60 * 1000
-        ).toISOString(),
-        response: requestId === '1' 
-          ? 'You can reset your password by clicking on the "Forgot Password" link on the login page.' 
-          : undefined,
-        conversation: [
-          {
-            role: 'user',
-            content: requestId === '1' 
-              ? 'Hello, I forgot my password. How can I reset it?' 
-              : 'Hi, I ordered something last week. When will it arrive?',
-            timestamp: new Date(
-              requestId === '1' 
-                ? Date.now() - 3 * 60 * 60 * 1000 - 2 * 60 * 1000
-                : Date.now() - 15 * 60 * 1000 - 2 * 60 * 1000
-            ).toISOString()
-          },
-          {
-            role: 'assistant',
-            content: requestId === '1'
-              ? 'Let me check with my supervisor about the password reset process...'
-              : 'Let me check with my supervisor about your order status...',
-            timestamp: new Date(
-              requestId === '1'
-                ? Date.now() - 3 * 60 * 60 * 1000 - 1 * 60 * 1000
-                : Date.now() - 15 * 60 * 1000 - 1 * 60 * 1000
-            ).toISOString()
-          },
-          ...(requestId === '1' ? [
-            {
-              role: 'assistant',
-              content: 'You can reset your password by clicking on the "Forgot Password" link on the login page.',
-              timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
-            }
-          ] : [])
-        ]
-      };
-      
-      setRequest(mockRequest);
-      setIsLoading(false);
-    }, 1000);
+    const fetchRequestDetails = async () => {
+      if (!requestId) {
+        setError('Request ID is missing');
+        setIsLoading(false);
+        return;
+      }
 
-    return () => clearTimeout(timer);
+      try {
+        const data = await requestsApi.getRequestById(requestId);
+        setRequest(data);
+      } catch (err) {
+        console.error('Error fetching request details:', err);
+        setError('Failed to load request details');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRequestDetails();
   }, [requestId]);
 
-  const handleSubmitResponse = (e: React.FormEvent) => {
+  const handleSubmitResponse = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!request || !response.trim()) return;
+    if (!request || !requestId || !response.trim()) return;
     
-    // In a real application, this would make an API call to update the request
-    setRequest({
-      ...request,
-      status: 'resolved',
-      response,
-      conversation: [
-        ...(request.conversation || []),
-        {
-          role: 'assistant',
-          content: response,
-          timestamp: new Date().toISOString()
-        }
-      ]
-    });
-    
-    setResponse('');
+    try {
+      setIsLoading(true);
+      const updatedRequest = await requestsApi.submitResponse(requestId, response);
+      setRequest(updatedRequest);
+      setResponse('');
+    } catch (err) {
+      console.error('Error submitting response:', err);
+      alert('Failed to submit response. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isLoading) {
@@ -115,6 +56,20 @@ const RequestDetails = () => {
       <div className="text-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
         <p className="mt-3 text-gray-500">Loading request details...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600">{error}</p>
+        <button
+          className="mt-4 btn btn-primary"
+          onClick={() => navigate('/supervisor')}
+        >
+          Back to Supervisor Panel
+        </button>
       </div>
     );
   }
@@ -190,24 +145,30 @@ const RequestDetails = () => {
           <h3 className="text-lg leading-6 font-medium text-gray-900">Conversation</h3>
         </div>
         <div className="border-t border-gray-200">
-          <ul className="divide-y divide-gray-200">
-            {request.conversation?.map((message, index) => (
-              <li key={index} className="px-4 py-4 sm:px-6">
-                <div className={`flex ${message.role === 'user' ? 'justify-start' : 'justify-end'}`}>
-                  <div className={`inline-block rounded-lg px-4 py-2 max-w-xl ${
-                    message.role === 'user'
-                      ? 'bg-gray-100 text-gray-800'
-                      : 'bg-blue-100 text-blue-800'
-                  }`}>
-                    <div className="text-sm">{message.content}</div>
+          {request.conversation && request.conversation.length > 0 ? (
+            <ul className="divide-y divide-gray-200">
+              {request.conversation.map((message, index) => (
+                <li key={index} className="px-4 py-4 sm:px-6">
+                  <div className={`flex ${message.role === 'user' ? 'justify-start' : 'justify-end'}`}>
+                    <div className={`inline-block rounded-lg px-4 py-2 max-w-xl ${
+                      message.role === 'user'
+                        ? 'bg-gray-100 text-gray-800'
+                        : 'bg-blue-100 text-blue-800'
+                    }`}>
+                      <div className="text-sm">{message.content}</div>
+                    </div>
                   </div>
-                </div>
-                <div className={`mt-1 text-xs text-gray-500 ${message.role === 'user' ? 'text-left' : 'text-right'}`}>
-                  {message.role === 'user' ? 'Customer' : 'AI Assistant'} • {new Date(message.timestamp).toLocaleString()}
-                </div>
-              </li>
-            ))}
-          </ul>
+                  <div className={`mt-1 text-xs text-gray-500 ${message.role === 'user' ? 'text-left' : 'text-right'}`}>
+                    {message.role === 'user' ? 'Customer' : 'AI Assistant'} • {new Date(message.timestamp).toLocaleString()}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="px-4 py-5 sm:px-6 text-center text-gray-500">
+              No conversation history available
+            </div>
+          )}
         </div>
       </div>
 
@@ -240,8 +201,9 @@ const RequestDetails = () => {
                 <button
                   type="submit"
                   className="btn btn-primary"
+                  disabled={isLoading}
                 >
-                  Submit Response
+                  {isLoading ? 'Submitting...' : 'Submit Response'}
                 </button>
               </div>
             </form>
