@@ -98,7 +98,24 @@ export default {
     },
   },
   plugins: [
-    require('@tailwindcss/typography'),
-    require('@tailwindcss/forms'),
+    // Dynamically load plugins if they exist
+    ...(function() {
+      const plugins = [];
+      try {
+        const typography = require('@tailwindcss/typography');
+        plugins.push(typography);
+      } catch (e) {
+        console.warn('tailwindcss/typography plugin not found');
+      }
+      
+      try {
+        const forms = require('@tailwindcss/forms');
+        plugins.push(forms);
+      } catch (e) {
+        console.warn('tailwindcss/forms plugin not found');
+      }
+      
+      return plugins;
+    })()
   ],
 } 

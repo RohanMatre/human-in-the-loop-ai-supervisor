@@ -1,5 +1,5 @@
 import express from 'express';
-import * as knowledgeController from '../controllers/knowledge.js';
+import * as knowledgeController from '../controllers/knowledge';
 
 const router = express.Router();
 
