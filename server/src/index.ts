@@ -3,12 +3,12 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import { initializeFirebase } from './services/firebase.js';
-import requestRoutes from './routes/requests.js';
-import knowledgeRoutes from './routes/knowledge.js';
-import statsRoutes from './routes/stats.js';
-import simulateRoutes from './routes/simulate.js';
-import logger from './utils/logger.js';
+import { initializeFirebase } from './services/firebase';
+import requestRoutes from './routes/requests';
+import knowledgeRoutes from './routes/knowledge';
+import statsRoutes from './routes/stats';
+import simulateRoutes from './routes/simulate';
+import logger from './utils/logger';
 
 // Load environment variables
 dotenv.config();

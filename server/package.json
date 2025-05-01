@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "description": "Backend for the Human-in-the-Loop AI Supervisor system",
   "main": "dist/index.js",
-  "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon --exec node --loader ts-node/esm src/index.ts",
+    "dev": "nodemon --exec \"npx ts-node\" src/index.ts",
     "start": "node dist/index.js",
     "lint": "eslint src --ext .ts"
   },
@@ -32,6 +31,8 @@
     "eslint": "^8.53.0",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"
   }
-} 
+}

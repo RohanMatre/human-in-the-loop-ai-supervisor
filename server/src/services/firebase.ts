@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, doc, query, where, orderBy, limit, Timestamp, serverTimestamp } from 'firebase/firestore';
-import { HelpRequest, KnowledgeEntry, Stats } from '../../../shared/types/index.js';
-import logger from '../utils/logger.js';
+import { HelpRequest, KnowledgeEntry, Stats } from '../../../shared/types/index';
+import logger from '../utils/logger';
 
 // Initialize Firebase
 let db: ReturnType<typeof getFirestore>;
