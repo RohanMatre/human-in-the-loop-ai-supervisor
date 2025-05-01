@@ -1,0 +1,33 @@
+{
+  "name": "human-in-the-loop-ai-supervisor",
+  "version": "1.0.0",
+  "description": "A system that integrates AI agents with human supervision for handling customer queries",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
+  "scripts": {
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "build": "npm run build:server && npm run build:client",
+    "lint": "npm run lint:client && npm run lint:server",
+    "lint:client": "cd client && npm run lint",
+    "lint:server": "cd server && npm run lint"
+  },
+  "keywords": [
+    "ai",
+    "human-in-the-loop",
+    "supervisor",
+    "customer-service"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 
