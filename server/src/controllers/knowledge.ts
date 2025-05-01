@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import * as firebaseService from '../services/firebase.js';
-import * as aiAgentService from '../services/ai-agent.js';
-import logger from '../utils/logger.js';
+import * as firebaseService from '../services/firebase';
+import * as aiAgentService from '../services/ai-agent';
+import logger from '../utils/logger';
 
 // Get all knowledge entries
 export const getAllEntries = async (req: Request, res: Response) => {

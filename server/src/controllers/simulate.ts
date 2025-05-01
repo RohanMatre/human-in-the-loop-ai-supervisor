@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import * as aiAgentService from '../services/ai-agent.js';
-import logger from '../utils/logger.js';
+import * as aiAgentService from '../services/ai-agent';
+import logger from '../utils/logger';
 
 // Simulate a call to the AI agent
 export const simulateCall = async (req: Request, res: Response) => {

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import * as firebaseService from '../services/firebase.js';
-import logger from '../utils/logger.js';
+import * as firebaseService from '../services/firebase';
+import logger from '../utils/logger';
 
 // Get system statistics
 export const getStats = async (req: Request, res: Response) => {

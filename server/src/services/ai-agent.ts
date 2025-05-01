@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import { HelpRequest, Conversation, KnowledgeEntry } from '../../../shared/types/index.js';
-import { CONVERSATION_ROLE, REQUEST_STATUS } from '../../../shared/constants/index.js';
-import * as firebaseService from './firebase.js';
-import logger from '../utils/logger.js';
+import { HelpRequest, Conversation, KnowledgeEntry } from '../../../shared/types/index';
+import { CONVERSATION_ROLE, REQUEST_STATUS } from '../../../shared/constants/index';
+import * as firebaseService from './firebase';
+import logger from '../utils/logger';
 
 // Simulated knowledge base for the AI agent
 let knowledgeBase: Map<string, string> = new Map();
