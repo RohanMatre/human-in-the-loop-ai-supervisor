@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import { initializeFirebase } from './services/firebase';
+import { initializeFirebase } from './services/firebase-mock';
 import requestRoutes from './routes/requests';
 import knowledgeRoutes from './routes/knowledge';
 import statsRoutes from './routes/stats';

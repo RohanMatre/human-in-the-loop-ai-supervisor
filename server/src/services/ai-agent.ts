@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { HelpRequest, Conversation, KnowledgeEntry } from '../../../shared/types/index';
 import { CONVERSATION_ROLE, REQUEST_STATUS } from '../../../shared/constants/index';
-import * as firebaseService from './firebase';
+import * as firebaseService from './firebase-mock';
 import logger from '../utils/logger';
 
 // Simulated knowledge base for the AI agent

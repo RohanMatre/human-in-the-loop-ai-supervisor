@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as firebaseService from '../services/firebase';
+import * as firebaseService from '../services/firebase-mock';
 import logger from '../utils/logger';
 
 // Get system statistics
