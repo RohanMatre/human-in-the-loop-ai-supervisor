@@ -42,14 +42,40 @@ cd ..
 
 # Create environment files if they don't exist
 if [ ! -f "./server/.env" ]; then
-    echo -e "${YELLOW}Creating server .env file from template...${NC}"
-    cp ./server/env.example ./server/.env
+    echo -e "${YELLOW}Creating server .env file...${NC}"
+    cat > ./server/.env << EOF
+# Server configuration
+PORT=8000
+NODE_ENV=development
+
+# Firebase configuration
+FIREBASE_API_KEY=your_api_key
+FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+FIREBASE_APP_ID=your_app_id
+
+# Emulator configuration
+USE_FIREBASE_EMULATOR=true
+EOF
     echo -e "${YELLOW}Please update the server/.env file with your Firebase configuration${NC}"
 fi
 
 if [ ! -f "./client/.env" ]; then
-    echo -e "${YELLOW}Creating client .env file from template...${NC}"
-    cp ./client/env.example ./client/.env
+    echo -e "${YELLOW}Creating client .env file...${NC}"
+    cat > ./client/.env << EOF
+# API URL
+VITE_API_URL=http://localhost:8000
+
+# Firebase configuration
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+EOF
     echo -e "${YELLOW}Please update the client/.env file with your configuration${NC}"
 fi
 
