@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { statsApi } from '@services/api';
-import { Stats } from '../../../shared/types';
+import { statsApi, requestsApi } from '@services/api';
+import { HelpRequest, Stats } from '../../../shared/types';
 import SimulateCall from '@components/SimulateCall';
+import RequestCard from '@components/RequestCard';
 
 const Dashboard = () => {
   const [stats, setStats] = useState<Stats>({
@@ -12,15 +13,25 @@ const Dashboard = () => {
     responseRate: 0
   });
   
+  const [recentRequests, setRecentRequests] = useState<HelpRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchData = async () => {
       try {
-        const data = await statsApi.getStats();
-        setStats(data);
+        const [statsData, requestsData] = await Promise.all([
+          statsApi.getStats(),
+          requestsApi.getAllRequests()
+        ]);
+        
+        setStats(statsData);
+        // Sort by timestamp (newest first) and take the first 5
+        const sortedRequests = requestsData
+          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+          .slice(0, 5);
+        setRecentRequests(sortedRequests);
       } catch (error) {
-        console.error('Error fetching stats:', error);
+        console.error('Error fetching dashboard data:', error);
         // Fallback to sample data
         setStats({
           totalRequests: 125,
@@ -33,7 +44,7 @@ const Dashboard = () => {
       }
     };
 
-    fetchStats();
+    fetchData();
   }, []);
 
   if (isLoading) {
@@ -91,57 +102,44 @@ const Dashboard = () => {
             </Link>
           </div>
           <div className="bg-white shadow overflow-hidden sm:rounded-md">
-            <ul className="divide-y divide-gray-200">
-              {/* Simulate recent requests */}
-              <li>
-                <Link to="/requests/1" className="block hover:bg-gray-50">
-                  <div className="px-4 py-4 sm:px-6">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-blue-600 truncate">How do I reset my password?</p>
-                      <div className="ml-2 flex-shrink-0 flex">
-                        <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          Resolved
-                        </p>
+            {recentRequests.length > 0 ? (
+              <ul className="divide-y divide-gray-200">
+                {recentRequests.map(request => (
+                  <li key={request.id}>
+                    <Link to={`/requests/${request.id}`} className="block hover:bg-gray-50">
+                      <div className="px-4 py-4 sm:px-6">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium text-blue-600 truncate">{request.query}</p>
+                          <div className="ml-2 flex-shrink-0 flex">
+                            <p className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              request.status === 'resolved' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="mt-2 sm:flex sm:justify-between">
+                          <div className="sm:flex">
+                            <p className="flex items-center text-sm text-gray-500">
+                              Customer ID: {request.customerInfo.id}
+                            </p>
+                          </div>
+                          <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                            {new Date(request.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <div className="mt-2 sm:flex sm:justify-between">
-                      <div className="sm:flex">
-                        <p className="flex items-center text-sm text-gray-500">
-                          Customer ID: 1001
-                        </p>
-                      </div>
-                      <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                        3 hours ago
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </li>
-              <li>
-                <Link to="/requests/2" className="block hover:bg-gray-50">
-                  <div className="px-4 py-4 sm:px-6">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-blue-600 truncate">When will my order arrive?</p>
-                      <div className="ml-2 flex-shrink-0 flex">
-                        <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                          Pending
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-2 sm:flex sm:justify-between">
-                      <div className="sm:flex">
-                        <p className="flex items-center text-sm text-gray-500">
-                          Customer ID: 1042
-                        </p>
-                      </div>
-                      <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                        15 minutes ago
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </li>
-            </ul>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="px-4 py-5 sm:p-6 text-center text-gray-500">
+                No requests available
+              </div>
+            )}
           </div>
         </div>
 
