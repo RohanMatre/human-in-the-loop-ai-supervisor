@@ -2,13 +2,132 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --primary: #1a56db;
-  --secondary: #7e3af2;
-  --success: #0e9f6e;
-  --danger: #e02424;
-  --warning: #f59e0b;
-  --info: #3f83f8;
+@layer base {
+  /* Light Mode - Default */
+  :root {
+    --color-bg-primary: theme('colors.gray.50');
+    --color-bg-secondary: theme('colors.white');
+    --color-text-primary: theme('colors.gray.900');
+    --color-text-secondary: theme('colors.gray.500');
+    --color-border: theme('colors.gray.200');
+    --color-accent: theme('colors.blue.600');
+    --color-accent-light: theme('colors.blue.100');
+    --color-accent-dark: theme('colors.blue.800');
+  }
+
+  /* Dark Mode */
+  .dark-mode {
+    --color-bg-primary: theme('colors.gray.900');
+    --color-bg-secondary: theme('colors.gray.800');
+    --color-text-primary: theme('colors.gray.50');
+    --color-text-secondary: theme('colors.gray.300');
+    --color-border: theme('colors.gray.700');
+    --color-accent: theme('colors.blue.400');
+    --color-accent-light: theme('colors.blue.900');
+    --color-accent-dark: theme('colors.blue.200');
+  }
+
+  /* Black and White Mode */
+  .black-white-mode {
+    --color-bg-primary: theme('colors.black');
+    --color-bg-secondary: theme('colors.gray.900');
+    --color-text-primary: theme('colors.white');
+    --color-text-secondary: theme('colors.gray.300');
+    --color-border: theme('colors.gray.800');
+    --color-accent: theme('colors.white');
+    --color-accent-light: theme('colors.gray.800');
+    --color-accent-dark: theme('colors.white');
+
+    /* Convert images to grayscale */
+    img {
+      filter: grayscale(100%);
+    }
+  }
+}
+
+/* Additional utilities */
+@layer utilities {
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+  }
+  
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+  }
+}
+
+/* Smooth transitions for theme switching */
+* {
+  transition-property: color, background-color, border-color;
+  transition-duration: 150ms;
+}
+
+/* Accessibility improvements */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Scrollbar customization */
+@media (min-width: 640px) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg-primary);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 5px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-secondary);
+  }
+}
+
+/* Animation utilities */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.3s ease-in-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
 body {
