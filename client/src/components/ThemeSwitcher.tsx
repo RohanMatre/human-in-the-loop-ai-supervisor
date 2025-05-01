@@ -5,6 +5,23 @@ const ThemeSwitcher: React.FC = () => {
   const { theme, setTheme } = useThemeStore();
   const [isOpen, setIsOpen] = useState(false);
   
+  // Apply theme when component mounts
+  useEffect(() => {
+    // Force apply the current theme
+    setTheme(theme);
+    
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      if (theme === 'system') {
+        setTheme('system'); // Re-apply system theme
+      }
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme, setTheme]);
+  
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = () => {
@@ -52,16 +69,6 @@ const ThemeSwitcher: React.FC = () => {
             />
           </svg>
         )}
-        {theme === 'black-white' && (
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
-            />
-          </svg>
-        )}
         {theme === 'system' && (
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
@@ -106,21 +113,6 @@ const ThemeSwitcher: React.FC = () => {
               />
             </svg>
             Dark
-          </button>
-          <button
-            onClick={() => handleThemeChange('black-white')}
-            className={`${theme === 'black-white' ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'} 
-                        group flex items-center w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700`}
-          >
-            <svg className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500 dark:text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
-              />
-            </svg>
-            Black & White
           </button>
           <button
             onClick={() => handleThemeChange('system')}

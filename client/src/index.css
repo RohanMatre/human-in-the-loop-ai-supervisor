@@ -26,23 +26,6 @@
     --color-accent-light: theme('colors.blue.900');
     --color-accent-dark: theme('colors.blue.200');
   }
-
-  /* Black and White Mode */
-  .black-white-mode {
-    --color-bg-primary: theme('colors.black');
-    --color-bg-secondary: theme('colors.gray.900');
-    --color-text-primary: theme('colors.white');
-    --color-text-secondary: theme('colors.gray.300');
-    --color-border: theme('colors.gray.800');
-    --color-accent: theme('colors.white');
-    --color-accent-light: theme('colors.gray.800');
-    --color-accent-dark: theme('colors.white');
-
-    /* Convert images to grayscale */
-    img {
-      filter: grayscale(100%);
-    }
-  }
 }
 
 /* Additional utilities */

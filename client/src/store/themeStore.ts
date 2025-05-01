@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type ThemeMode = 'light' | 'dark' | 'black-white' | 'system';
+export type ThemeMode = 'light' | 'dark' | 'system';
 
 interface ThemeState {
   theme: ThemeMode;
@@ -27,20 +27,17 @@ export const useThemeStore = create<ThemeState>()(
         setTheme: (theme: ThemeMode) => {
           const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
           const isDark = theme === 'dark' || 
-            (theme === 'system' && isSystemDark) || 
-            theme === 'black-white';
+            (theme === 'system' && isSystemDark);
           
           set({ theme, isDarkMode: isDark });
           
           // Apply theme to document
-          document.documentElement.classList.remove('light-mode', 'dark-mode', 'black-white-mode');
+          document.documentElement.classList.remove('light-mode', 'dark-mode');
           
           if (theme === 'light') {
             document.documentElement.classList.add('light-mode');
           } else if (theme === 'dark') {
             document.documentElement.classList.add('dark-mode');
-          } else if (theme === 'black-white') {
-            document.documentElement.classList.add('black-white-mode');
           } else if (theme === 'system') {
             document.documentElement.classList.add(isSystemDark ? 'dark-mode' : 'light-mode');
           }

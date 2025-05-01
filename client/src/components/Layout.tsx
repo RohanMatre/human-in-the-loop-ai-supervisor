@@ -1,30 +1,14 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import ThemeSwitcher from './ThemeSwitcher';
 import { useThemeStore } from '../store/themeStore';
 
 const Layout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { theme, setTheme } = useThemeStore();
-
-  // Set up theme on initial load
-  useEffect(() => {
-    setTheme(theme);
-    
-    // Listen for system theme changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => {
-      if (theme === 'system') {
-        setTheme('system');
-      }
-    };
-    
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
+  const { isDarkMode } = useThemeStore();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <div className={`min-h-screen flex flex-col ${isDarkMode ? 'dark-mode' : 'light-mode'} bg-gray-50 dark:bg-gray-900 transition-colors duration-200`}>
       <header className="bg-white dark:bg-gray-800 shadow-md dark:shadow-gray-700/20 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
