@@ -85,7 +85,14 @@ echo -e "${YELLOW}Press Ctrl+C to stop the servers${NC}"
 
 # Start the agent in the background
 echo -e "${GREEN}Starting AI agent...${NC}"
-cd agent && echo "1" | ./run.sh &
+cd agent
+# Set up and activate virtual environment
+if [ ! -d "venv" ]; then
+    ./setup_venv.sh
+else
+    echo "Virtual environment already exists"
+fi
+echo "1" | ./run.sh &
 agent_pid=$!
 cd ..
 

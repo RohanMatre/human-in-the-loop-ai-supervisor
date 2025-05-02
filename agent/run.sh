@@ -42,7 +42,20 @@ fi
 
 # Check for dependencies
 echo -e "${BLUE}Checking for dependencies...${NC}"
-pip3 install -r requirements.txt
+
+# Set up virtual environment if not already done
+if [ ! -d "venv" ]; then
+    echo -e "${BLUE}Setting up virtual environment...${NC}"
+    ./setup_venv.sh
+else
+    # Just activate the virtual environment
+    if [ -f "venv/bin/activate" ]; then
+        source venv/bin/activate
+    else
+        echo "Error: Virtual environment exists but activation script not found."
+        exit 1
+    fi
+fi
 
 # Function to start the agent
 start_agent() {

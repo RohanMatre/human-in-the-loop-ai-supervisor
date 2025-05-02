@@ -34,10 +34,4 @@ pip install -r requirements.txt
 
 echo -e "${GREEN}Setup complete!${NC}"
 echo -e "To activate the virtual environment in the future, run: ${BLUE}source venv/bin/activate${NC}"
-echo -e "Then run the agent with: ${BLUE}python start.py${NC}"
-echo ""
-echo -e "${GREEN}Would you like to run the agent now? (y/n)${NC}"
-read answer
-if [ "$answer" = "y" ] || [ "$answer" = "Y" ]; then
-    python start.py
-fi 
+echo -e "Then run the agent with: ${BLUE}python start.py${NC}" 
