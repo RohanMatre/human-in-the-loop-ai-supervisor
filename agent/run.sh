@@ -77,14 +77,16 @@ read -p "Select an option (1-5): " option
 # Default room name
 room_name="salon-test-room"
 
-# Ask for custom room name
-read -p "Enter room name (default: $room_name): " custom_room
-if [ -n "$custom_room" ]; then
-    room_name=$custom_room
-fi
-
 case $option in
     1)
+        # Use default room name without asking when started non-interactively
+        if [ -t 0 ]; then
+            # Terminal is interactive
+            read -p "Enter room name (default: $room_name): " custom_room
+            if [ -n "$custom_room" ]; then
+                room_name=$custom_room
+            fi
+        fi
         start_agent "$room_name"
         ;;
     2)

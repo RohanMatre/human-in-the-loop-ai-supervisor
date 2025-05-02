@@ -82,4 +82,14 @@ fi
 # Start the development server
 echo -e "${GREEN}Starting development servers...${NC}"
 echo -e "${YELLOW}Press Ctrl+C to stop the servers${NC}"
-npm run dev 
+
+# Start the agent in the background
+echo -e "${GREEN}Starting AI agent...${NC}"
+cd agent && echo "1" | ./run.sh &
+agent_pid=$!
+cd ..
+
+npm run dev
+
+# Kill the agent process when the main server exits
+kill $agent_pid 2>/dev/null 
