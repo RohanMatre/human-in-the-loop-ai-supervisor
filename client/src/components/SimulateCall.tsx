@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { simulateApi } from '@services/api';
 import Button from './Button';
 
-const SimulateCall: React.FC = () => {
+interface SimulateCallProps {
+  onRequestCreated?: (requestId: string) => void;
+}
+
+const SimulateCall: React.FC<SimulateCallProps> = ({ onRequestCreated }) => {
   const [query, setQuery] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [conversationLog, setConversationLog] = useState<string[]>([]);
@@ -24,6 +28,12 @@ const SimulateCall: React.FC = () => {
       setConversationLog(result.conversationLog);
       setRequestId(result.requestId);
       setQuery('');
+      
+      // Notify parent component about the new request
+      if (result.requestId && onRequestCreated) {
+        onRequestCreated(result.requestId);
+      }
+      
     } catch (err) {
       setError('Failed to simulate call. Please try again.');
       console.error('Error simulating call:', err);
@@ -148,6 +158,9 @@ const SimulateCall: React.FC = () => {
                     </p>
                     <p className="mt-1 text-blue-700 dark:text-blue-300 opacity-80">
                       The request is now in the supervisor queue awaiting response.
+                    </p>
+                    <p className="mt-2 italic">
+                      The request has been automatically added to the list on the left.
                     </p>
                   </div>
                 </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { statsApi, requestsApi } from '@services/api';
 import { HelpRequest, Stats } from '../../../shared/types';
@@ -17,35 +17,57 @@ const Dashboard = () => {
   const [recentRequests, setRecentRequests] = useState<HelpRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchData = useCallback(async () => {
+    try {
+      const [statsData, requestsData] = await Promise.all([
+        statsApi.getStats(),
+        requestsApi.getAllRequests()
+      ]);
+      
+      setStats(statsData);
+      // Sort by timestamp (newest first) and take the first 5
+      const sortedRequests = requestsData
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, 5);
+      setRecentRequests(sortedRequests);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      // Fallback to sample data
+      setStats({
+        totalRequests: 125,
+        pendingRequests: 12,
+        resolvedRequests: 113,
+        responseRate: 90.4
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [statsData, requestsData] = await Promise.all([
-          statsApi.getStats(),
-          requestsApi.getAllRequests()
-        ]);
-        
-        setStats(statsData);
-        // Sort by timestamp (newest first) and take the first 5
-        const sortedRequests = requestsData
+    fetchData();
+  }, [fetchData]);
+
+  // This function will be passed to SimulateCall to handle new requests
+  const handleNewRequest = useCallback(async (newRequestId: string) => {
+    // Update statistics
+    const updatedStats = await statsApi.getStats();
+    setStats(updatedStats);
+    
+    // Get the new request details
+    try {
+      const newRequest = await requestsApi.getRequestById(newRequestId);
+      
+      // Add to the list and keep only the 5 most recent
+      setRecentRequests(prevRequests => {
+        const updatedRequests = [newRequest, ...prevRequests];
+        return updatedRequests
           .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
           .slice(0, 5);
-        setRecentRequests(sortedRequests);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        // Fallback to sample data
-        setStats({
-          totalRequests: 125,
-          pendingRequests: 12,
-          resolvedRequests: 113,
-          responseRate: 90.4
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+      });
+    } catch (error) {
+      console.error('Error fetching new request details:', error);
+    }
   }, []);
 
   if (isLoading) {
@@ -212,7 +234,7 @@ const Dashboard = () => {
         </div>
 
         <div className="animate-slide-in-right">
-          <SimulateCall />
+          <SimulateCall onRequestCreated={handleNewRequest} />
         </div>
       </div>
     </div>
