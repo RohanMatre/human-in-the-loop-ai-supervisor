@@ -14,17 +14,26 @@ const ThemeSwitcher: React.FC = () => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = () => {
       if (theme === 'system') {
-        setTheme('system'); // Re-apply system theme
+        // Force reapply system theme when OS preference changes
+        setTheme('system');
       }
     };
     
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    // Use the appropriate event listener method
+    try {
+      // Modern approach
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    } catch (e) {
+      // Fallback for older browsers
+      mediaQuery.addListener(handleChange);
+      return () => mediaQuery.removeListener(handleChange);
+    }
   }, [theme, setTheme]);
   
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = () => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (isOpen) setIsOpen(false);
     };
     
@@ -33,6 +42,7 @@ const ThemeSwitcher: React.FC = () => {
   }, [isOpen]);
 
   const handleThemeChange = (newTheme: ThemeMode) => {
+    console.log(`Changing theme to: ${newTheme}`);
     setTheme(newTheme);
     setIsOpen(false);
   };
@@ -47,10 +57,12 @@ const ThemeSwitcher: React.FC = () => {
       <button
         onClick={toggleDropdown}
         className="flex items-center rounded-full p-1 text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-white focus:outline-none"
-        aria-label="Toggle theme"
+        aria-label={`Current theme: ${theme}. Click to change theme.`}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
       >
         {theme === 'light' && (
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -60,7 +72,7 @@ const ThemeSwitcher: React.FC = () => {
           </svg>
         )}
         {theme === 'dark' && (
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -70,7 +82,7 @@ const ThemeSwitcher: React.FC = () => {
           </svg>
         )}
         {theme === 'system' && (
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -82,14 +94,21 @@ const ThemeSwitcher: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
-             onClick={(e) => e.stopPropagation()}>
+        <div 
+          className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
+          onClick={(e) => e.stopPropagation()}
+          role="menu"
+          aria-orientation="vertical"
+          aria-labelledby="theme-menu"
+        >
           <button
             onClick={() => handleThemeChange('light')}
             className={`${theme === 'light' ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'} 
                         group flex items-center w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700`}
+            role="menuitem"
+            aria-current={theme === 'light' ? 'true' : 'false'}
           >
-            <svg className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500 dark:text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <svg className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500 dark:text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -103,8 +122,10 @@ const ThemeSwitcher: React.FC = () => {
             onClick={() => handleThemeChange('dark')}
             className={`${theme === 'dark' ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'} 
                         group flex items-center w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700`}
+            role="menuitem"
+            aria-current={theme === 'dark' ? 'true' : 'false'}
           >
-            <svg className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500 dark:text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <svg className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500 dark:text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -118,8 +139,10 @@ const ThemeSwitcher: React.FC = () => {
             onClick={() => handleThemeChange('system')}
             className={`${theme === 'system' ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'} 
                         group flex items-center w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700`}
+            role="menuitem"
+            aria-current={theme === 'system' ? 'true' : 'false'}
           >
-            <svg className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500 dark:text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <svg className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500 dark:text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

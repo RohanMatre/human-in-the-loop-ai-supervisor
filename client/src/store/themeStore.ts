@@ -25,6 +25,7 @@ export const useThemeStore = create<ThemeState>()(
         theme: 'system',
         isDarkMode: prefersDark,
         setTheme: (theme: ThemeMode) => {
+          console.log(`ThemeStore: Setting theme to ${theme}`);
           const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
           const isDark = theme === 'dark' || 
             (theme === 'system' && isSystemDark);
@@ -32,25 +33,33 @@ export const useThemeStore = create<ThemeState>()(
           set({ theme, isDarkMode: isDark });
           
           // Apply theme to document
-          document.documentElement.classList.remove('light-mode', 'dark-mode');
+          document.documentElement.classList.remove('light-mode', 'dark-mode', 'dark');
           
           if (theme === 'light') {
             document.documentElement.classList.add('light-mode');
           } else if (theme === 'dark') {
             document.documentElement.classList.add('dark-mode');
+            document.documentElement.classList.add('dark'); // For Tailwind dark mode
           } else if (theme === 'system') {
-            document.documentElement.classList.add(isSystemDark ? 'dark-mode' : 'light-mode');
+            if (isSystemDark) {
+              document.documentElement.classList.add('dark-mode');
+              document.documentElement.classList.add('dark'); // For Tailwind dark mode
+            } else {
+              document.documentElement.classList.add('light-mode');
+            }
           }
+          console.log(`ThemeStore: Theme applied, isDark: ${isDark}, classList:`, document.documentElement.classList.toString());
         },
         setSystemTheme: () => {
           const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
           set({ isDarkMode: isSystemDark });
           
+          document.documentElement.classList.remove('light-mode', 'dark-mode', 'dark');
+          
           if (isSystemDark) {
-            document.documentElement.classList.remove('light-mode');
             document.documentElement.classList.add('dark-mode');
+            document.documentElement.classList.add('dark'); // For Tailwind dark mode
           } else {
-            document.documentElement.classList.remove('dark-mode');
             document.documentElement.classList.add('light-mode');
           }
         }
