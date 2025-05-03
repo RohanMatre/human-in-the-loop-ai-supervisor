@@ -9,6 +9,9 @@ This is a monorepo containing both client and server components:
 - **Client**: React/Vite application for the frontend
 - **Server**: Express backend with TypeScript
 
+## Flowchart
+![Untitled](https://github.com/user-attachments/assets/0ffc59dc-5999-4879-ac4a-a9e9a09eff04)
+
 ## Features
 
 - AI-powered customer service agent
